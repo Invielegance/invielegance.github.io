@@ -174,30 +174,104 @@ footer {
 
 }
 
+/* REPRODUCTOR PERSONALIZADO */
+
+.music-player {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 32px 28px 30px;
+  background: transparent;
+  text-align: center;
+}
+
+.music-title {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 5px;
+  margin-bottom: 22px;
+  color: #4b3a3a;
+}
+
+.progress-container {
+  width: 75%;
+  max-width: 300px;
+  margin: 0 auto 18px;
+}
+
+#progressBar {
+  width: 100%;
+  height: 2px;
+  cursor: pointer;
+  accent-color: #a67c52;
+}
+
+.player-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 22px;
+}
+
+.player-controls button {
+  border: 0;
+  background: transparent;
+  color: #4b3a3a;
+  font-size: 19px;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+}
+
+#musicButton {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #b98963;
+  color: white;
+  font-size: 21px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+  
   </style>
 </head>
   
 <body>
 
   <section class="video-portada">
-  <video autoplay muted loop playsinline preload="auto">
+<video autoplay muted playsinline preload="auto">
     <source src="portada.mp4" type="video/mp4">
     Tu navegador no puede reproducir este video.
   </video>
 </section>
-  <div class="music-player">
+
+<div class="music-player">
+
   <div class="music-title">DALE PLAY</div>
 
-  <div class="music-controls">
-    <span class="music-line"></span>
-
-    <button type="button" id="musicButton" onclick="toggleSound()">
-      ▶
-    </button>
-
-    <span class="music-line"></span>
+  <div class="progress-container">
+    <input type="range" id="progressBar" min="0" max="100" value="0">
   </div>
+
+  <div class="player-controls">
+
+    <button type="button" onclick="restartVideo()" title="Reiniciar">↺</button>
+
+    <button type="button" onclick="skipVideo(-10)" title="Retroceder 10 segundos">◀</button>
+
+    <button type="button" id="musicButton" onclick="toggleSound()">▶</button>
+
+    <button type="button" onclick="skipVideo(10)" title="Adelantar 10 segundos">▶</button>
+
+    <button type="button" onclick="toggleLoop()" title="Repetir">↻</button>
+
+  </div>
+
 </div>
+  
 <section class="hero">
   <div class="small-title">Mis XV años</div>
 
@@ -316,23 +390,70 @@ const countdown = setInterval(function() {
 </script>
 
   <script>
-function toggleSound() {
-  const video = document.querySelector('.video-portada video');
-  const button = document.getElementById('musicButton');
+const video = document.querySelector('.video-portada video');
+const button = document.getElementById('musicButton');
+const progressBar = document.getElementById('progressBar');
+    video.loop = true;
 
+function toggleSound() {
   if (video.muted) {
     video.muted = false;
     video.volume = 1;
     video.play();
-    button.textContent = '❚❚';
+    button.textContent = 'Ⅱ';
   } else if (!video.paused) {
     video.pause();
     button.textContent = '▶';
   } else {
     video.play();
-    button.textContent = '❚❚';
+    button.textContent = 'Ⅱ';
   }
 }
+
+function skipVideo(seconds) {
+  video.currentTime = Math.max(
+    0,
+    Math.min(video.duration, video.currentTime + seconds)
+  );
+}
+
+function restartVideo() {
+  video.currentTime = 0;
+  video.play();
+
+  if (!video.muted) {
+    button.textContent = 'Ⅱ';
+  }
+}
+
+function toggleLoop() {
+  video.loop = !video.loop;
+}
+
+/* Actualizar la barra conforme avanza el video */
+video.addEventListener('timeupdate', function() {
+  if (video.duration) {
+    progressBar.value = (video.currentTime / video.duration) * 100;
+  }
+});
+
+/* Poder mover el video desde la barra */
+progressBar.addEventListener('input', function() {
+  if (video.duration) {
+    video.currentTime = (progressBar.value / 100) * video.duration;
+  }
+});
+
+/* Mantener actualizado el botón */
+video.addEventListener('play', function() {
+  if (!video.muted) {
+    button.textContent = 'Ⅱ';
+  }
+});
+
+video.addEventListener('pause', function() {
+  button.textContent = '▶';
+});
 </script>
 
 </body>
